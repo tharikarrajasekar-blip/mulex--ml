@@ -1,0 +1,18 @@
+fastapi
+uvicorn[standard]
+SQLAlchemy
+psycopg2-binary
+python-multipart
+passlib[bcrypt]
+python-dotenv
+
+# AI/ML Libraries
+scikit-learn
+pandas
+numpy
+shap
+joblib
+matplotlib
+
+# Data Processing
+pydantic[email]

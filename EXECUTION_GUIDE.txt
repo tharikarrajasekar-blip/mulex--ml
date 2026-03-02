@@ -1,0 +1,319 @@
+"""
+MULEX AI Backend - Complete Execution Steps
+Follow these commands exactly in order
+"""
+
+# ════════════════════════════════════════════════════════════════════════════════
+# MULEX AI - BACKEND SETUP & EXECUTION GUIDE
+# ════════════════════════════════════════════════════════════════════════════════
+
+## STEP 0: PREREQUISITES
+
+✅ Check Python version:
+   python --version
+   (Should be 3.8+)
+
+✅ Check PostgreSQL is running:
+   - Windows: Check Services or Task Manager
+   - Ensure it's listening on default port 5432
+
+✅ All packages installed:
+   pip install -r requirements.txt
+
+✅ .env file configured:
+   - DATABASE_URL=postgresql://postgres:password@localhost:5432/mulex
+   - SECRET_KEY=your-secret-key
+   - DEBUG=True
+
+## STEP 1-4: EXECUTE EVERYTHING IN ONE COMMAND
+
+Navigate to backend directory:
+cd c:\Users\thari\Downloads\MULEX.ML\backend
+
+Run the complete setup:
+python run_all.py
+
+This will automatically:
+✅ Initialize database
+✅ Seed sample data
+✅ Test all models
+✅ Start the API server
+
+## OR: EXECUTE STEP-BY-STEP
+
+### Step 1️⃣ - Initialize Database
+python init_db.py
+
+Expected output:
+==================================================
+MuleX AI Backend - Database Setup
+==================================================
+✅ Database connection successful!
+🔄 Creating database tables...
+✅ Database tables created successfully!
+✅ Database setup complete! Ready to start the server.
+
+### Step 2️⃣ - Seed Sample Data
+python seed_db.py
+
+Expected output:
+============================================================
+🌱 MULEX AI - DATABASE SEEDING
+============================================================
+
+📝 Creating users...
+✅ Created user: admin@mulex.ai
+✅ Created user: investigator@mulex.ai
+✅ Created user: user1@email.com
+✅ Created user: user2@email.com
+
+📊 Creating accounts...
+✅ Created account: ACC-1001-XK
+✅ Created account: ACC-2002-BB
+...
+
+✅ DATABASE SEEDING COMPLETE!
+
+Created:
+  • 4 users
+  • 5 accounts
+  • Multiple transactions, alerts, KYC, AML, biometric records
+
+### Step 3️⃣ - Test All Models
+python test_models.py
+
+Expected output:
+============================================================
+🤖 FRAUD DETECTION MODEL
+============================================================
+
+📊 Low Risk Transaction
+   Fraud Probability: 25%
+   Decision: APPROVED
+   Confidence: 25.00%
+
+📊 Medium Risk Transaction
+   Fraud Probability: 58%
+   Decision: STEP-UP AUTH
+   Confidence: 58.00%
+
+📊 High Risk Transaction
+   Fraud Probability: 89%
+   Decision: BLOCKED
+   Confidence: 89.00%
+
+============================================================
+🤖 TRUST SCORING ENGINE
+============================================================
+
+📊 Trusted User
+   Trust Score: 78.5/100
+   Decision: APPROVE
+   ...
+
+============================================================
+🤖 AML PATTERN DETECTION
+============================================================
+
+📊 Clean Transaction History
+   Overall Risk: LOW
+   ...
+
+✅ ALL MODEL TESTS COMPLETED SUCCESSFULLY!
+
+Summary:
+   • Fraud Detection: ✅ Working
+   • Trust Scoring: ✅ Working
+   • AML Detection: ✅ Working
+   • Database Integration: ✅ Connected
+
+### Step 4️⃣ - Start API Server
+python -m uvicorn app.main:app --reload
+
+Expected output:
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started server process [PID]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+
+## ✅ VERIFY EVERYTHING WORKS
+
+### 1. Check API Documentation
+Visit: http://localhost:8000/docs
+You should see the interactive Swagger UI with all endpoints
+
+### 2. Test API with curl
+Get Status (no auth needed):
+curl http://localhost:8000/openapi.json
+
+Login:
+curl -X POST "http://localhost:8000/token" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "username=admin@mulex.ai&password=secured"
+
+Copy the access_token from response
+
+Get Dashboard Metrics:
+curl -H "Authorization: Bearer <YOUR_TOKEN>" \
+  http://localhost:8000/dashboard/metrics
+
+Should return:
+{
+  "total_transactions": 35,
+  "high_risk_accounts": 2,
+  "active_alerts": 8,
+  "avg_trust_score": 65.5
+}
+
+### 3. Test Fraud Prediction
+curl -X POST "http://localhost:8000/api/fraud/predict" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amount": 150000,
+    "velocity_score": 85,
+    "location_risk": 70,
+    "device_risk": 60,
+    "time_anomaly": 75,
+    "network_risk": 65
+  }'
+
+Should return:
+{
+  "fraud_probability": 89,
+  "decision": "BLOCKED",
+  "confidence": 0.89,
+  "explanation": {...}
+}
+
+### 4. Test WebSocket Feed
+Open terminal and run:
+python -c "
+import asyncio
+import websockets
+async def test():
+    async with websockets.connect('ws://localhost:8000/ws/feed') as ws:
+        for i in range(5):
+            msg = await ws.recv()
+            print(f'Received: {msg}')
+asyncio.run(test())
+"
+
+## 📊 SAMPLE DATA CREATED
+
+Users:
+  admin@mulex.ai / password: secured
+  investigator@mulex.ai / password: secured
+  user1@email.com / password: password123
+  user2@email.com / password: password123
+
+Accounts:
+  ACC-1001-XK
+  ACC-2002-BB
+  ACC-3003-ZQ
+  ACC-5005-PQ
+  ACC-7007-MM
+
+Each account has:
+  • 5-10 transactions
+  • 2-4 alerts
+  • KYC verification
+  • AML scan
+  • Biometric profile
+  • Authentication attempts
+
+## 🚀 DEPLOYMENT OPTIONS
+
+### Development (Current)
+python -m uvicorn app.main:app --reload
+(Auto-reloads on code changes)
+### Production
+python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
+
+### Docker (if configured)
+docker build -t mulex-backend .
+docker run -p 8000:8000 mulex-backend
+
+### Gunicorn + Uvicorn
+pip install gunicorn
+gunicorn app.main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker
+
+## 🔌 CONNECT FRONTEND
+
+Frontend should use:
+
+API Base URL: http://localhost:8000
+Login Endpoint: POST /token
+WebSocket URL: ws://localhost:8000/ws/feed
+
+Example Frontend Fetch:
+// Login
+const response = await fetch('http://localhost:8000/token', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+  body: 'username=admin@mulex.ai&password=secured'
+});
+const {access_token} = await response.json();
+
+// Get Metrics
+const metrics = await fetch('http://localhost:8000/dashboard/metrics', {
+  headers: { 'Authorization': `Bearer ${access_token}` }
+});
+
+// WebSocket Feed
+const ws = new WebSocket('ws://localhost:8000/ws/feed');
+ws.onmessage = (event) => {
+  console.log('Live Update:', event.data);
+};
+
+## 🛑 STOPPING THE SERVER
+
+Press CTRL+C in the terminal where server is running
+
+## 📋 TROUBLESHOOTING
+
+### "Port 8000 already in use"
+Use different port:
+python -m uvicorn app.main:app --port 8001
+
+### "PostgreSQL connection refused"
+Check:
+1. PostgreSQL is running
+2. Database exists (mulex)
+3. Credentials in .env are correct
+4. Port 5432 is accessible
+
+### "Module not found"
+Run:
+pip install -r requirements.txt
+
+### "Database errors"
+Reinitialize:
+python init_db.py
+
+Then reseed:
+python seed_db.py
+
+## 📞 QUICK REFERENCE
+
+Files by Purpose:
+├── init_db.py        → Initialize database schema
+├── seed_db.py        → Populate sample data
+├── test_models.py    → Test ML/AI models
+├── run_all.py        → Run everything at once
+├── app/main.py       → FastAPI server
+├── app/ml_models.py  → AI/ML implementations
+├── app/routes.py     → API endpoints
+├── app/crud.py       → Database operations
+├── .env              → Configuration
+└── requirements.txt  → Dependencies
+
+Commands Reference:
+python init_db.py              # Create tables
+python seed_db.py              # Add sample data
+python test_models.py          # Test models
+python run_all.py              # Do everything + start server
+python -m uvicorn app.main:app --reload  # Start server only
+
+════════════════════════════════════════════════════════════════════════════════
+Ready! Start with: python run_all.py
+════════════════════════════════════════════════════════════════════════════════
