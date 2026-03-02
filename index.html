@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MuleX AI — Enterprise Risk Intelligence Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+<script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+ <!-- ══════════ LOGIN PAGE ══════════ -->
+<div id="loginPage">
+  <div class="login-wrap">
+    <div class="login-hex-deco"></div>
+    <div class="login-box">
+      <div class="login-logo">
+        <div class="logo-name">MULEX AI</div>
+        <div class="logo-sub">ENTERPRISE RISK INTELLIGENCE PLATFORM v4.2</div>
+      </div>
+      <div class="login-status">
+        <div class="status-dot"></div>
+        SYSTEM OPERATIONAL — ALL ENGINES ACTIVE
+      </div>
+      <div class="field-group">
+        <label class="field-label">OPERATOR ID</label>
+        <input type="text" class="field-input" id="username" placeholder="admin@mulex.ai" value="admin@mulex.ai">
+      </div>
+      <div class="field-group">
+        <label class="field-label">ACCESS KEY</label>
+        <input type="password" class="field-input" id="password" placeholder="••••••••" value="secured">
+      </div>
+      <div class="field-group">
+        <label class="field-label">CLEARANCE LEVEL</label>
+        <select class="field-select field-input" id="role">
+          <option value="ADMIN">ADMIN — Full Access</option>
+          <option value="INVESTIGATOR">INVESTIGATOR — Read Only</option>
+        </select>
+      </div>
+      <button class="btn-login" onclick="login()">INITIATE SECURE SESSION</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MAIN APP ══════════ -->
+<div id="mainApp">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">MULEX AI</div>
+      <div class="sidebar-tagline">RISK INTELLIGENCE PLATFORM</div>
+      <div class="sidebar-system"><div class="status-dot"></div> ALL ENGINES ONLINE</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">OPERATIONS</div>
+      <div class="nav-item active" onclick="showSection('dashboard', this)"><span class="nav-icon">◈</span> Dashboard</div>
+      <div class="nav-item" onclick="showSection('trust', this)"><span class="nav-icon">⬡</span> Trust Engine</div>
+      <div class="nav-item" onclick="showSection('kyc', this)"><span class="nav-icon">◉</span> AI KYC Verify</div>
+      <div class="nav-item" onclick="showSection('auth', this)"><span class="nav-icon">⬬</span> Deepfake Auth</div>
+      <div class="nav-section-label">INTELLIGENCE</div>
+      <div class="nav-item" onclick="showSection('fraud', this)"><span class="nav-icon">◆</span> Fraud Engine <span class="nav-badge">LIVE</span></div>
+      <div class="nav-item" onclick="showSection('aml', this)" id="navAML"><span class="nav-icon">◼</span> AML Monitor</div>
+      <div class="nav-item" onclick="showSection('biometrics', this)"><span class="nav-icon">⬟</span> Biometrics</div>
+      <div class="nav-item" onclick="showSection('graph', this)"><span class="nav-icon">◈</span> Mule Network</div>
+      <div class="nav-section-label">SYSTEM</div>
+      <div class="nav-item" onclick="showSection('geomap', this)"><span class="nav-icon">🌐</span> Geo Risk Map <span class="nav-badge">NEW</span></div>
+      <div class="nav-item" onclick="showSection('alerts', this)"><span class="nav-icon">⬡</span> Alerts <span class="nav-badge" id="alertBadge">18</span></div>
+      <div class="nav-item" onclick="showSection('explain', this)"><span class="nav-icon">◉</span> Explainable AI</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div id="sidebarRole">ROLE: ADMIN</div>
+      <div style="margin-top:4px;color:rgba(100,160,192,0.4);">SESSION: 8A3F-K2P1</div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-title" id="pageTitle">UNIFIED RISK DASHBOARD</div>
+      <div class="topbar-right">
+        <div class="threat-level">
+          <span style="font-family:var(--font-mono);font-size:10px;color:var(--text2);">THREAT:</span>
+          <div class="threat-bar">
+            <span class="active"></span>
+            <span class="active"></span>
+            <span class="active danger"></span>
+            <span></span>
+            <span></span>
+          </div>
+          <span style="font-family:var(--font-mono);font-size:10px;color:var(--warn);">ELEVATED</span>
+        </div>
+        <div class="topbar-time" id="clock">00:00:00</div>
+        <!-- VOICE TOGGLE in topbar -->
+        <div class="voice-toggle-wrap" onclick="toggleVoice()" title="Toggle Voice Assistant">
+          <span class="voice-toggle-label" id="voiceToggleLabel">🔊</span>
+          <div class="voice-toggle-track" id="voiceToggleTrack">
+            <div class="voice-toggle-thumb" id="voiceToggleThumb"></div>
+          </div>
+          <span class="voice-toggle-status" id="voiceToggleStatus">ON</span>
+        </div>
+        <div class="topbar-role" id="roleTag">ADMIN</div>
+        <button class="btn btn-danger" onclick="testAlert()" style="padding:6px 14px;font-size:10px;">⚡ TEST ALERT</button>
+      </div>
+    </div>
+
+    <!-- ── DASHBOARD ── -->
+    <div id="dashboard" class="section active">
+      <div class="section-header">
+        <div class="section-icon">◈</div>
+        <div>
+          <div class="section-title">UNIFIED RISK DASHBOARD</div>
+          <div class="section-sub">REAL-TIME FRAUD INTELLIGENCE · AI-POWERED · ENTERPRISE GRADE</div>
+        </div>
+      </div>
+
+      <div class="kpi-row">
+        <div class="kpi-card blue">
+          <div class="kpi-label">TOTAL TRANSACTIONS</div>
+          <div class="kpi-value" id="kpiTxn">14,250</div>
+          <div class="kpi-trend">↑ 12% from yesterday</div>
+          <div class="kpi-bg-icon">⬡</div>
+        </div>
+        <div class="kpi-card red">
+          <div class="kpi-label">HIGH RISK ACCOUNTS</div>
+          <div class="kpi-value" id="kpiRisk">48</div>
+          <div class="kpi-trend">↑ 3 new this hour</div>
+          <div class="kpi-bg-icon">⚠</div>
+        </div>
+        <div class="kpi-card orange">
+          <div class="kpi-label">ACTIVE ALERTS</div>
+          <div class="kpi-value" id="kpiAlerts">16</div>
+          <div class="kpi-trend">↓ 2 resolved</div>
+          <div class="kpi-bg-icon">◆</div>
+        </div>
+        <div class="kpi-card green">
+          <div class="kpi-label">AVG TRUST SCORE</div>
+          <div class="kpi-value" id="kpiTrust">78</div>
+          <div class="kpi-trend">↑ Stable</div>
+          <div class="kpi-bg-icon">✓</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="chart-panel">
+          <div class="panel-title">FRAUD ACTIVITY — 7 DAY TREND</div>
+          <canvas id="fraudChart" height="130"></canvas>
+        </div>
+        <div class="chart-panel">
+          <div class="panel-title">RISK DISTRIBUTION</div>
+          <canvas id="riskDonut" height="130"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-panel">
+        <div class="panel-title">LIVE TRANSACTION STREAM</div>
+        <div class="live-feed" id="liveFeed"></div>
+      </div>
+
+      <div class="spacer"></div>
+      <div class="panel-title">RECENT HIGH PRIORITY ALERTS</div>
+      <div class="chart-panel" style="padding-top:10px">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ACCOUNT ID</th>
+              <th>RISK SCORE</th>
+              <th>TYPE</th>
+              <th>TIMESTAMP</th>
+              <th>STATUS</th>
+              <th>ACTION</th>
+            </tr>
+          </thead>
+          <tbody id="dashAlertTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── TRUST ENGINE ── -->
+    <div id="trust" class="section">
+      <div class="section-header">
+        <div class="section-icon">⬡</div>
+        <div>
+          <div class="section-title">UNIFIED DYNAMIC TRUST SCORING ENGINE</div>
+          <div class="section-sub">COMBINES IDENTITY · AUTH · TRANSACTION · NETWORK · BEHAVIORAL SIGNALS</div>
+        </div>
+      </div>
+
+      <div class="trust-grid">
+        <div class="trust-inputs">
+          <div class="panel-title">RISK SIGNAL INPUTS</div>
+          <div class="slider-group">
+            <div class="slider-header"><span>IDENTITY RISK</span><span class="slider-val" id="v_identity">70</span></div>
+            <input type="range" id="sl_identity" min="0" max="100" value="70" oninput="updateSlider('identity')">
+          </div>
+          <div class="slider-group">
+            <div class="slider-header"><span>AUTH RISK</span><span class="slider-val" id="v_auth">60</span></div>
+            <input type="range" id="sl_auth" min="0" max="100" value="60" oninput="updateSlider('auth')">
+          </div>
+          <div class="slider-group">
+            <div class="slider-header"><span>TRANSACTION RISK</span><span class="slider-val" id="v_txn">80</span></div>
+            <input type="range" id="sl_txn" min="0" max="100" value="80" oninput="updateSlider('txn')">
+          </div>
+          <div class="slider-group">
+            <div class="slider-header"><span>NETWORK RISK</span><span class="slider-val" id="v_network">50</span></div>
+            <input type="range" id="sl_network" min="0" max="100" value="50" oninput="updateSlider('network')">
+          </div>
+          <div class="slider-group">
+            <div class="slider-header"><span>BEHAVIORAL RISK</span><span class="slider-val" id="v_behavior">40</span></div>
+            <input type="range" id="sl_behavior" min="0" max="100" value="40" oninput="updateSlider('behavior')">
+          </div>
+          <div class="spacer"></div>
+          <button class="btn" onclick="calculateTrust()" style="width:100%">⬡ GENERATE TRUST SCORE</button>
+        </div>
+        <div class="trust-result-panel">
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--text2);letter-spacing:2px;margin-bottom:10px;">COMPOSITE TRUST SCORE</div>
+          <div class="trust-score-ring">
+            <canvas id="trustRingCanvas" width="160" height="160"></canvas>
+            <div class="trust-score-center">
+              <div class="trust-score-num" id="trustScoreNum">--</div>
+              <div class="trust-score-label">/ 100</div>
+            </div>
+          </div>
+          <div class="trust-decision" id="trustDecision" style="display:none"></div>
+          <div class="result-card" id="trustDetails" style="width:100%;margin-top:16px">
+            <div class="result-row"><span class="result-key">WEIGHTED FORMULA</span><span class="result-val">0.2·I + 0.2·A + 0.25·T + 0.2·N + 0.15·B</span></div>
+            <div class="result-row"><span class="result-key">IDENTITY COMPONENT</span><span class="result-val" id="td_identity">--</span></div>
+            <div class="result-row"><span class="result-key">AUTH COMPONENT</span><span class="result-val" id="td_auth">--</span></div>
+            <div class="result-row"><span class="result-key">TRANSACTION COMPONENT</span><span class="result-val" id="td_txn">--</span></div>
+            <div class="result-row"><span class="result-key">NETWORK COMPONENT</span><span class="result-val" id="td_network">--</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── AI KYC ── -->
+    <div id="kyc" class="section">
+      <div class="section-header">
+        <div class="section-icon">◉</div>
+        <div>
+          <div class="section-title">AI-POWERED DIGITAL KYC VERIFICATION</div>
+          <div class="section-sub">OCR · TAMPER DETECTION · SYNTHETIC IDENTITY · ONBOARDING RISK</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div>
+          <div class="chart-panel">
+            <div class="panel-title">DOCUMENT UPLOAD</div>
+            <div style="border:2px dashed rgba(0,212,255,0.2);padding:40px;text-align:center;margin-bottom:16px;cursor:pointer;" onclick="document.getElementById('kycFile').click()">
+              <div style="font-size:36px;margin-bottom:10px;">◉</div>
+              <div style="font-family:var(--font-mono);font-size:12px;color:var(--text2);">DROP DOCUMENT OR CLICK TO UPLOAD</div>
+              <div style="font-family:var(--font-mono);font-size:10px;color:rgba(100,160,192,0.4);margin-top:6px;">AADHAR · PAN · PASSPORT · DL</div>
+              <input type="file" id="kycFile" style="display:none" onchange="triggerKYC()">
+            </div>
+            <button class="btn" onclick="runKYC()" style="width:100%;justify-content:center;">◉ RUN AI KYC VERIFICATION</button>
+          </div>
+        </div>
+        <div>
+          <div class="chart-panel">
+            <div class="panel-title">VERIFICATION MODULES</div>
+            <div id="kycModules">
+              <div class="result-row"><span class="result-key">OCR EXTRACTION</span><span class="result-val" id="kyc_ocr">READY</span></div>
+              <div class="result-row"><span class="result-key">TAMPER DETECTION</span><span class="result-val" id="kyc_tamper">READY</span></div>
+              <div class="result-row"><span class="result-key">SYNTHETIC IDENTITY</span><span class="result-val" id="kyc_synth">READY</span></div>
+              <div class="result-row"><span class="result-key">CONSENT VALIDATION</span><span class="result-val" id="kyc_consent">READY</span></div>
+              <div class="result-row"><span class="result-key">ONBOARDING RISK SCORE</span><span class="result-val" id="kyc_risk">--</span></div>
+              <div class="result-row"><span class="result-key">FINAL VERDICT</span><span class="result-val" id="kyc_verdict" style="font-size:14px;font-weight:700;">AWAITING</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── DEEPFAKE AUTH ── -->
+    <div id="auth" class="section">
+      <div class="section-header">
+        <div class="section-icon">⬬</div>
+        <div>
+          <div class="section-title">DEEPFAKE-RESILIENT AUTHENTICATION</div>
+          <div class="section-sub">FACE · OTP · DEVICE · LIVENESS · VOICE SPOOF DETECTION</div>
+        </div>
+      </div>
+
+      <div class="three-col">
+        <div class="chart-panel" style="text-align:center">
+          <div class="panel-title">FACE SCAN</div>
+          <div style="width:120px;height:120px;border:2px solid var(--accent);border-radius:50%;margin:20px auto;display:flex;align-items:center;justify-content:center;font-size:48px;background:rgba(0,212,255,0.05);" id="faceIcon">👤</div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--text2);" id="faceStatus">WAITING FOR SCAN</div>
+          <div class="spacer"></div>
+          <button class="btn" onclick="scanFace()" style="width:100%;justify-content:center;">SCAN FACE</button>
+        </div>
+        <div class="chart-panel" style="text-align:center">
+          <div class="panel-title">LIVENESS CHECK</div>
+          <div style="font-size:48px;text-align:center;margin:20px 0;" id="livenessIcon">⬬</div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--text2);" id="livenessStatus">PENDING</div>
+          <div class="spacer"></div>
+          <button class="btn" onclick="checkLiveness()" style="width:100%;justify-content:center;">RUN LIVENESS</button>
+        </div>
+        <div class="chart-panel" style="text-align:center">
+          <div class="panel-title">VOICE ANALYSIS</div>
+          <div style="font-size:48px;text-align:center;margin:20px 0;" id="voiceIcon">🎙</div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--text2);" id="voiceStatus">PENDING</div>
+          <div class="spacer"></div>
+          <button class="btn" onclick="analyzeVoice()" style="width:100%;justify-content:center;">ANALYZE VOICE</button>
+        </div>
+      </div>
+
+      <div class="chart-panel">
+        <div class="panel-title">AUTHENTICATION VERDICT</div>
+        <div id="authVerdict" style="font-family:var(--font-head);font-size:20px;letter-spacing:3px;text-align:center;padding:20px;color:var(--text2);">RUN ALL MODULES TO GET VERDICT</div>
+      </div>
+    </div>
+
+    <!-- ── FRAUD ENGINE ── -->
+    <div id="fraud" class="section">
+      <div class="section-header">
+        <div class="section-icon">◆</div>
+        <div>
+          <div class="section-title">REAL-TIME FRAUD DETECTION ENGINE</div>
+          <div class="section-sub">ML · BEHAVIORAL ANALYTICS · VELOCITY CHECKS · ANOMALY DETECTION</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="chart-panel">
+          <div class="panel-title">TRANSACTION SIMULATOR</div>
+          <div class="field-group" style="margin-top:10px">
+            <label class="field-label">TRANSACTION AMOUNT (₹)</label>
+            <input type="number" class="field-input" id="txnAmount" placeholder="Enter amount" value="95000" style="width:100%">
+          </div>
+          <div class="field-group" style="margin-top:12px">
+            <label class="field-label">ORIGINATING LOCATION</label>
+            <input type="text" class="field-input" id="txnLocation" placeholder="City, Region" value="Mumbai, IN" style="width:100%">
+          </div>
+          <div class="field-group" style="margin-top:12px">
+            <label class="field-label">TRANSACTION VELOCITY</label>
+            <select class="field-input field-select" id="txnVelocity" style="width:100%">
+              <option value="low">LOW — 1 txn/day</option>
+              <option value="medium">MEDIUM — 5 txn/day</option>
+              <option value="high" selected>HIGH — 20+ txn/hour</option>
+            </select>
+          </div>
+          <div class="spacer"></div>
+          <button class="btn" onclick="simulateFraud()" style="width:100%;justify-content:center;">◆ ANALYZE TRANSACTION</button>
+        </div>
+        <div class="chart-panel">
+          <div class="panel-title">FRAUD PROBABILITY GAUGE</div>
+          <div style="text-align:center;padding:20px 0">
+            <canvas id="fraudGauge" width="200" height="120" style="display:block;margin:0 auto"></canvas>
+            <div style="font-family:var(--font-head);font-size:40px;font-weight:900;color:var(--danger);margin-top:10px;" id="fraudPercent">--</div>
+            <div style="font-family:var(--font-mono);font-size:11px;color:var(--text2);letter-spacing:2px">FRAUD PROBABILITY</div>
+          </div>
+          <div id="fraudResult" class="result-card"></div>
+        </div>
+      </div>
+
+      <div class="chart-panel">
+        <div class="panel-title">REAL-TIME FRAUD EVENTS</div>
+        <div class="live-feed" id="fraudFeed"></div>
+      </div>
+    </div>
+
+    <!-- ── AML ── -->
+    <div id="aml" class="section">
+      <div class="section-header">
+        <div class="section-icon">◼</div>
+        <div>
+          <div class="section-title">ADVANCED AML MONITORING</div>
+          <div class="section-sub">LAYERING · STRUCTURING · SMURFING · STR AUTO-GENERATION</div>
+        </div>
+      </div>
+
+      <div class="aml-features">
+        <div class="aml-feature"><div class="aml-feature-dot"></div> Layering Pattern Detection</div>
+        <div class="aml-feature"><div class="aml-feature-dot"></div> Structuring / Smurfing Detection</div>
+        <div class="aml-feature"><div class="aml-feature-dot"></div> Suspicious Fund Dispersion Tracking</div>
+        <div class="aml-feature"><div class="aml-feature-dot"></div> Automated STR Generation</div>
+        <div class="aml-feature"><div class="aml-feature-dot"></div> Audit-Ready Reporting</div>
+        <div class="aml-feature"><div class="aml-feature-dot"></div> Cross-Channel Monitoring</div>
+      </div>
+
+      <div class="two-col">
+        <div class="chart-panel">
+          <div class="panel-title">AML SCAN ENGINE</div>
+          <div class="field-group" style="margin-top:10px">
+            <label class="field-label">ACCOUNT TO SCAN</label>
+            <input type="text" class="field-input" id="amlAccount" value="ACC-9087-XK" style="width:100%">
+          </div>
+          <div class="spacer"></div>
+          <button class="btn" onclick="runAML()" style="width:100%;justify-content:center;margin-bottom:10px;">◼ RUN AML SCAN</button>
+          <button class="btn btn-warn" onclick="downloadSTR()" style="width:100%;justify-content:center;">⬇ DOWNLOAD STR REPORT</button>
+          <div id="amlResult" class="result-card"></div>
+        </div>
+        <div class="chart-panel">
+          <div class="panel-title">AML PATTERN ANALYSIS</div>
+          <canvas id="amlChart" height="160"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── BIOMETRICS ── -->
+    <div id="biometrics" class="section">
+      <div class="section-header">
+        <div class="section-icon">⬟</div>
+        <div>
+          <div class="section-title">BEHAVIORAL BIOMETRICS MONITORING</div>
+          <div class="section-sub">TYPING · MOUSE DYNAMICS · CLICK PATTERNS · SESSION ANOMALY</div>
+        </div>
+      </div>
+
+      <div class="bio-grid">
+        <div class="bio-card">
+          <div class="bio-label">TYPING SPEED</div>
+          <div class="bio-value" id="bioTyping">0 <span style="font-size:12px">WPM</span></div>
+          <div class="bio-bar-wrap"><div class="bio-bar-fill" id="bioTypingBar" style="width:0%;background:linear-gradient(90deg,#0066ff,#00d4ff)"></div></div>
+          <div style="font-family:var(--font-mono);font-size:9px;color:var(--text2);margin-top:6px;" id="bioTypingStatus">TYPE IN THE BOX BELOW</div>
+        </div>
+        <div class="bio-card">
+          <div class="bio-label">MOUSE VELOCITY</div>
+          <div class="bio-value" id="bioMouse">0 <span style="font-size:12px">px/s</span></div>
+          <div class="bio-bar-wrap"><div class="bio-bar-fill" id="bioMouseBar" style="width:0%;background:linear-gradient(90deg,#0066ff,#00ff88)"></div></div>
+          <div style="font-family:var(--font-mono);font-size:9px;color:var(--text2);margin-top:6px;" id="bioMouseStatus">MOVE MOUSE TO DETECT</div>
+        </div>
+        <div class="bio-card">
+          <div class="bio-label">SESSION RISK SCORE</div>
+          <div class="bio-value" id="bioSession">LOW</div>
+          <div class="bio-bar-wrap"><div class="bio-bar-fill" id="bioSessionBar" style="width:15%;background:linear-gradient(90deg,#00ff88,#00d4ff)"></div></div>
+          <div style="font-family:var(--font-mono);font-size:9px;color:var(--text2);margin-top:6px;" id="bioSessionStatus">NORMAL BEHAVIOR</div>
+        </div>
+      </div>
+
+      <div class="chart-panel">
+        <div class="panel-title">BEHAVIOR INPUT TEST — TYPE TO ANALYZE</div>
+        <textarea class="field-input" id="bioInput" placeholder="Start typing here to capture behavioral biometrics..." style="width:100%;height:80px;resize:none;padding:12px" oninput="analyzeBehavior()"></textarea>
+        <canvas id="bioChart" height="80" style="margin-top:16px"></canvas>
+      </div>
+
+      <div class="chart-panel">
+        <div class="panel-title">BIOMETRIC ANALYSIS LOG</div>
+        <div class="live-feed" id="bioFeed"></div>
+      </div>
+    </div>
+
+    <!-- ── GRAPH ── -->
+    <div id="graph" class="section">
+      <div class="section-header">
+        <div class="section-icon">◈</div>
+        <div>
+          <div class="section-title">GRAPH-BASED MULE ACCOUNT DETECTION</div>
+          <div class="section-sub">NETWORK CLUSTERING · CIRCULAR TRANSACTIONS · SHARED IP/DEVICE ANALYSIS</div>
+        </div>
+      </div>
+
+      <div class="two-col" style="margin-bottom:20px">
+        <div class="chart-panel">
+          <div class="panel-title">NODE LEGEND</div>
+          <div class="result-row"><span class="result-key">🟢 GREEN</span><span class="result-val safe">SAFE ACCOUNT</span></div>
+          <div class="result-row"><span class="result-key">🟠 ORANGE</span><span class="result-val warn">SUSPICIOUS</span></div>
+          <div class="result-row"><span class="result-key">🔴 RED</span><span class="result-val danger">CONFIRMED MULE</span></div>
+          <div class="spacer"></div>
+          <button class="btn" onclick="refreshGraph()" style="width:100%;justify-content:center;">◈ REFRESH NETWORK</button>
+        </div>
+        <div class="chart-panel">
+          <div class="panel-title">NETWORK STATISTICS</div>
+          <div class="result-row"><span class="result-key">TOTAL NODES</span><span class="result-val" id="graphNodes">8</span></div>
+          <div class="result-row"><span class="result-key">SUSPICIOUS EDGES</span><span class="result-val warn" id="graphEdges">12</span></div>
+          <div class="result-row"><span class="result-key">CIRCULAR PATTERNS</span><span class="result-val danger" id="graphCircular">3</span></div>
+          <div class="result-row"><span class="result-key">CLUSTER RISK</span><span class="result-val danger">HIGH</span></div>
+        </div>
+      </div>
+
+      <div id="networkGraph"></div>
+    </div>
+
+    <!-- ── ALERTS ── -->
+    <div id="alerts" class="section">
+      <div class="section-header">
+        <div class="section-icon">⬡</div>
+        <div>
+          <div class="section-title">INTELLIGENT ALERT PRIORITIZATION</div>
+          <div class="section-sub">RISK-RANKED · CASE MANAGEMENT · INVESTIGATOR WORKFLOW</div>
+        </div>
+      </div>
+
+      <div class="two-col" style="margin-bottom:20px">
+        <button class="btn btn-danger" onclick="triggerAlert('Mule account ACC-303-X detected with circular transactions')" style="padding:14px;justify-content:center;font-size:13px;">🚨 TRIGGER CRITICAL ALERT</button>
+        <button class="btn btn-warn" onclick="triggerVoiceOnly('Suspicious activity detected on account ACC-202. Please review immediately.')" style="padding:14px;justify-content:center;font-size:13px;">🔊 VOICE ANNOUNCEMENT</button>
+      </div>
+
+      <div class="chart-panel">
+        <div class="panel-title">PRIORITY ALERT QUEUE</div>
+        <table class="data-table" id="alertsTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>ACCOUNT</th>
+              <th>RISK SCORE</th>
+              <th>TYPE</th>
+              <th>TIME</th>
+              <th>PRIORITY</th>
+              <th>STATUS</th>
+            </tr>
+          </thead>
+          <tbody id="alertTableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="voice-panel">
+        <div class="voice-icon" id="voicePanelIcon">🔊</div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <div style="font-family:var(--font-head);font-size:14px;letter-spacing:2px;color:var(--accent);">AI VOICE ASSISTANT</div>
+            <div class="voice-mute-toggle" onclick="toggleVoice()">
+              <span class="mute-icon" id="mutePanelIcon">&#128266;</span>
+              <div class="mute-track" id="mutePanelTrack">
+                <div class="mute-thumb" id="mutePanelThumb"></div>
+              </div>
+              <span class="mute-label" id="mutePanelLabel">VOICE ON</span>
+            </div>
+          </div>
+          <div style="font-family:var(--font-mono);font-size:12px;color:var(--text2);margin-bottom:14px;" id="voiceLog">READY &#8212; Voice assistant active</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn-success" onclick="testVoice()" style="padding:8px 16px;font-size:11px;">&#128266; VOICE TEST</button>
+            <button class="btn" onclick="testVoiceAlert()" style="padding:8px 16px;font-size:11px;">&#128680; TEST ALERT VOICE</button>
+            <button class="btn btn-warn" onclick="stopVoice()" style="padding:8px 16px;font-size:11px;">&#9209; STOP</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── EXPLAINABLE AI ── -->
+    <div id="explain" class="section">
+      <div class="section-header">
+        <div class="section-icon">◉</div>
+        <div>
+          <div class="section-title">EXPLAINABLE AI & REGULATORY COMPLIANCE</div>
+          <div class="section-sub">SHAP VALUES · MODEL TRANSPARENCY · AUDIT TRAILS · REGULATORY REPORTING</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="chart-panel">
+          <div class="panel-title">EXPLAIN RISK DECISION</div>
+          <div class="field-group" style="margin-top:10px">
+            <label class="field-label">ACCOUNT ID</label>
+            <input type="text" class="field-input" id="explainAccount" value="ACC-9087-XK" style="width:100%">
+          </div>
+          <div class="spacer"></div>
+          <button class="btn" onclick="showSHAP()" style="width:100%;justify-content:center;margin-bottom:10px;">◉ GENERATE SHAP EXPLANATION</button>
+          <button class="btn btn-warn" onclick="generateAuditLog()" style="width:100%;justify-content:center;">📋 GENERATE AUDIT LOG</button>
+          <div id="auditResult" class="result-card"></div>
+        </div>
+        <div class="chart-panel">
+          <div class="panel-title">COMPLIANCE MODULES</div>
+          <div class="result-row"><span class="result-key">MODEL TRANSPARENCY</span><span class="result-val safe">ACTIVE</span></div>
+          <div class="result-row"><span class="result-key">AUDIT TRAIL LOGGING</span><span class="result-val safe">ENABLED</span></div>
+          <div class="result-row"><span class="result-key">RBI COMPLIANCE</span><span class="result-val safe">CERTIFIED</span></div>
+          <div class="result-row"><span class="result-key">GDPR COMPLIANCE</span><span class="result-val safe">COMPLIANT</span></div>
+          <div class="result-row"><span class="result-key">SHAP EXPLAINER</span><span class="result-val safe">LOADED</span></div>
+          <div class="result-row"><span class="result-key">MODEL VERSION</span><span class="result-val">XGBoost-v4.2.1</span></div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ── GEO RISK MAP ── -->
+    <div id="geomap" class="section">
+      <div class="section-header">
+        <div class="section-icon">🌐</div>
+        <div>
+          <div class="section-title">GEO RISK INTELLIGENCE MAP</div>
+          <div class="section-sub">REAL-TIME FRAUD HOTSPOTS · TRANSACTION ORIGINS · HEATMAP OVERLAY</div>
+        </div>
+      </div>
+
+      <div class="kpi-row" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;">
+        <div class="kpi-card red">
+          <div class="kpi-label">FRAUD HOTSPOTS</div>
+          <div class="kpi-value">12</div>
+          <div class="kpi-trend">↑ 3 new zones</div>
+          <div class="kpi-bg-icon">📍</div>
+        </div>
+        <div class="kpi-card orange">
+          <div class="kpi-label">FLAGGED CITIES</div>
+          <div class="kpi-value">7</div>
+          <div class="kpi-trend">Mumbai, Delhi, Kolkata…</div>
+          <div class="kpi-bg-icon">🏙</div>
+        </div>
+        <div class="kpi-card blue">
+          <div class="kpi-label">TRACKED ACCOUNTS</div>
+          <div class="kpi-value">48</div>
+          <div class="kpi-trend">↑ 5 new this hour</div>
+          <div class="kpi-bg-icon">◉</div>
+        </div>
+        <div class="kpi-card green">
+          <div class="kpi-label">SAFE ZONES</div>
+          <div class="kpi-value">23</div>
+          <div class="kpi-trend">Low activity regions</div>
+          <div class="kpi-bg-icon">✓</div>
+        </div>
+      </div>
+
+      <div class="two-col" style="margin-bottom:18px;gap:14px;">
+        <div class="chart-panel" style="padding:16px 20px;margin-bottom:0">
+          <div class="panel-title" style="margin-bottom:12px">MAP OVERLAY CONTROLS</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn" onclick="setMapLayer('heatmap')" id="btnHeatmap" style="font-size:10px;padding:7px 14px;">🔥 HEATMAP</button>
+            <button class="btn" onclick="setMapLayer('markers')" id="btnMarkers" style="font-size:10px;padding:7px 14px;">📍 MARKERS</button>
+            <button class="btn" onclick="setMapLayer('both')" id="btnBoth" style="font-size:10px;padding:7px 14px;">◈ BOTH</button>
+            <button class="btn btn-danger" onclick="triggerGeoAlert()" style="font-size:10px;padding:7px 14px;">🚨 ALERT ZONE</button>
+          </div>
+        </div>
+        <div class="chart-panel" style="padding:16px 20px;margin-bottom:0">
+          <div class="panel-title" style="margin-bottom:12px">RISK MARKER LEGEND</div>
+          <div style="display:flex;gap:16px;font-family:var(--font-mono);font-size:11px;flex-wrap:wrap;">
+            <span><span style="color:#ff2244">●</span> Critical Fraud</span>
+            <span><span style="color:#ff9900">●</span> Suspicious</span>
+            <span><span style="color:#00d4ff">●</span> Monitored</span>
+            <span><span style="color:#00ff88">●</span> Safe Zone</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-panel" style="padding:0;overflow:hidden;position:relative;margin-bottom:18px;">
+        <div id="leafletMap" style="width:100%;height:520px;"></div>
+        <div style="position:absolute;inset:0;pointer-events:none;border:1px solid rgba(0,212,255,0.2);"></div>
+
+      </div>
+
+      <div class="chart-panel">
+        <div class="panel-title">SELECTED LOCATION INTELLIGENCE</div>
+        <div id="geoInfoPanel">
+          <div style="font-family:var(--font-mono);font-size:12px;color:var(--text2);text-align:center;padding:16px;">
+            Click any marker on the map to view detailed fraud intelligence for that location
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-panel">
+        <div class="panel-title">LIVE GEO TRANSACTION FEED</div>
+        <div class="live-feed" id="geoFeed"></div>
+      </div>
+    </div>
+
+  </div><!-- /main-content -->
+</div><!-- /mainApp -->
+
+<!-- CRITICAL ALERT OVERLAY -->
+<div class="critical-overlay" id="criticalOverlay">
+  <div class="critical-box">
+    <span class="critical-icon">🚨</span>
+    <div class="critical-title">CRITICAL FRAUD ALERT</div>
+    <div class="critical-msg" id="criticalMsg">HIGH RISK MULE ACCOUNT DETECTED<br>IMMEDIATE INVESTIGATION REQUIRED</div>
+    <button class="btn btn-danger" onclick="dismissAlert()" style="width:100%;justify-content:center;padding:14px;font-size:13px;">ACKNOWLEDGE & DISMISS</button>
+  </div>
+</div>
+
+<!-- SHAP POPUP -->
+<div class="shap-overlay" id="shapOverlay">
+  <div class="shap-box">
+    <div class="shap-title">◉ SHAP RISK EXPLANATION</div>
+    <div style="font-family:var(--font-mono);font-size:10px;color:var(--text2);margin-bottom:20px;letter-spacing:1px">ACCOUNT: <span id="shapAccount" style="color:var(--accent)">ACC-9087-XK</span></div>
+    <div class="shap-bar-item">
+      <div class="shap-bar-label"><span>TRANSACTION AMOUNT</span><span style="color:var(--danger)">+0.42</span></div>
+      <div class="shap-bar-track"><div class="shap-bar-fill" style="width:84%;background:var(--danger)"></div></div>
+    </div>
+    <div class="shap-bar-item">
+      <div class="shap-bar-label"><span>SHARED IP ADDRESS</span><span style="color:var(--danger)">+0.35</span></div>
+      <div class="shap-bar-track"><div class="shap-bar-fill" style="width:70%;background:var(--warn)"></div></div>
+    </div>
+    <div class="shap-bar-item">
+      <div class="shap-bar-label"><span>RAPID FUND MOVEMENT</span><span style="color:var(--warn)">+0.28</span></div>
+      <div class="shap-bar-track"><div class="shap-bar-fill" style="width:56%;background:var(--warn)"></div></div>
+    </div>
+    <div class="shap-bar-item">
+      <div class="shap-bar-label"><span>ACCOUNT AGE</span><span style="color:var(--accent)">+0.18</span></div>
+      <div class="shap-bar-track"><div class="shap-bar-fill" style="width:36%;background:var(--accent)"></div></div>
+    </div>
+    <div class="shap-bar-item">
+      <div class="shap-bar-label"><span>DEVICE FINGERPRINT</span><span style="color:var(--safe)">-0.12</span></div>
+      <div class="shap-bar-track"><div class="shap-bar-fill" style="width:24%;background:var(--safe)"></div></div>
+    </div>
+    <div style="background:rgba(255,34,68,0.1);border:1px solid rgba(255,34,68,0.3);padding:12px;margin-top:16px;font-family:var(--font-mono);font-size:11px;color:#ff8899;line-height:1.7">
+      ⚠ HIGH RISK — Score: 91/100<br>Primary drivers: Large amount + IP reuse + Velocity spike
+    </div>
+    <div class="spacer"></div>
+    <button class="btn" onclick="document.getElementById('shapOverlay').classList.remove('show')" style="width:100%;justify-content:center">CLOSE PANEL</button>
+  </div>
+</div>
+
+  <script src="script.js"></script>
+</body>
+</html>   
